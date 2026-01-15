@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { clickhouse, LAG_THRESHOLDS } from '@/lib/clickhouse'
 
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const startDate = searchParams.get('startDate') || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]

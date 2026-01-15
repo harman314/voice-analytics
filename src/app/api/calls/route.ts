@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { clickhouse } from '@/lib/clickhouse'
 
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const date = searchParams.get('date') || new Date().toISOString().split('T')[0]
