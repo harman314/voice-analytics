@@ -6,7 +6,7 @@ import { StatsCard } from '@/components/StatsCard'
 import { CallsTable } from '@/components/CallsTable'
 import { DatePicker } from '@/components/DatePicker'
 import { FilterBar } from '@/components/FilterBar'
-import { DEFAULT_INTERNAL_USERS } from '@/lib/clickhouse'
+import { DEFAULT_INTERNAL_USERS } from '@/lib/constants'
 import { formatDuration } from '@/lib/utils'
 
 interface Call {

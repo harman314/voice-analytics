@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { DEFAULT_INTERNAL_USERS, LAG_THRESHOLDS } from '@/lib/clickhouse'
+import { DEFAULT_INTERNAL_USERS, LAG_THRESHOLDS } from '@/lib/constants'
 
 export default function SettingsPage() {
   const [internalUsers, setInternalUsers] = useState<string[]>([])

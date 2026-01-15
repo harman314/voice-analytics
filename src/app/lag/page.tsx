@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { format, subDays } from 'date-fns'
 import Link from 'next/link'
 import { StatsCard } from '@/components/StatsCard'
-import { DEFAULT_INTERNAL_USERS, LAG_THRESHOLDS } from '@/lib/clickhouse'
+import { DEFAULT_INTERNAL_USERS, LAG_THRESHOLDS } from '@/lib/constants'
 import { truncateUserId } from '@/lib/utils'
 
 interface LagEpisode {

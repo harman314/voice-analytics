@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { clickhouse, LAG_THRESHOLDS } from '@/lib/clickhouse'
+import { clickhouse } from '@/lib/clickhouse'
+import { LAG_THRESHOLDS } from '@/lib/constants'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'

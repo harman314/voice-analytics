@@ -5,7 +5,7 @@ import { format, subDays } from 'date-fns'
 import { CallsTable } from '@/components/CallsTable'
 import { DatePicker } from '@/components/DatePicker'
 import { FilterBar } from '@/components/FilterBar'
-import { DEFAULT_INTERNAL_USERS } from '@/lib/clickhouse'
+import { DEFAULT_INTERNAL_USERS } from '@/lib/constants'
 
 interface Call {
   call_id: string

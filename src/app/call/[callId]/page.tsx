@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { TranscriptViewer } from '@/components/TranscriptViewer'
 import { formatDateTime, formatDuration, truncateUserId, parseTranscriptSafe } from '@/lib/utils'
-import { LAG_THRESHOLDS } from '@/lib/clickhouse'
+import { LAG_THRESHOLDS } from '@/lib/constants'
 
 interface CallDetail {
   call_id: string
