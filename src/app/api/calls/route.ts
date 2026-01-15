@@ -1,8 +1,55 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { clickhouse } from '@/lib/clickhouse'
+import { LAG_THRESHOLDS } from '@/lib/constants'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
+
+// Helper to analyze lag from transcript
+function analyzeLag(transcriptJson: string): { maxLag: number; lagEpisodes: number; lagType: string | null } {
+  try {
+    const transcript = JSON.parse(transcriptJson || '{}')
+    const items = transcript.items || []
+
+    let maxLag = 0
+    let lagEpisodes = 0
+    let maxLagType: string | null = null
+
+    for (const item of items) {
+      if (item.metrics) {
+        const metrics = item.metrics
+
+        // Check e2e latency
+        if (metrics.e2e_latency && metrics.e2e_latency > LAG_THRESHOLDS.e2e_latency) {
+          lagEpisodes++
+          if (metrics.e2e_latency > maxLag) {
+            maxLag = metrics.e2e_latency
+            maxLagType = 'e2e'
+          }
+        }
+
+        // Check LLM TTFT
+        if (metrics.llm_node_ttft && metrics.llm_node_ttft > LAG_THRESHOLDS.llm_ttft) {
+          lagEpisodes++
+          if (metrics.llm_node_ttft > maxLag) {
+            maxLag = metrics.llm_node_ttft
+            maxLagType = 'llm'
+          }
+        }
+
+        // Check TTS TTFB (convert to comparable scale)
+        if (metrics.tts_node_ttfb && metrics.tts_node_ttfb > LAG_THRESHOLDS.tts_ttfb) {
+          lagEpisodes++
+          // Don't update maxLag for TTS as it's a different scale
+        }
+      }
+    }
+
+    return { maxLag, lagEpisodes, lagType: maxLagType }
+  } catch {
+    return { maxLag: 0, lagEpisodes: 0, lagType: null }
+  }
+}
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
@@ -44,6 +91,7 @@ export async function GET(request: NextRequest) {
         total_turns,
         timezone,
         scheduled_time,
+        transcript,
         _timestamp
       FROM analytics.voice_call_analytics
       WHERE ${whereClause}
@@ -56,7 +104,20 @@ export async function GET(request: NextRequest) {
       format: 'JSONEachRow',
     })
 
-    const calls = await result.json()
+    const rawCalls = await result.json() as any[]
+
+    // Process each call to add lag analysis
+    const calls = rawCalls.map(call => {
+      const lagData = analyzeLag(call.transcript)
+      // Don't include full transcript in response (too large)
+      const { transcript, ...callWithoutTranscript } = call
+      return {
+        ...callWithoutTranscript,
+        max_lag: lagData.maxLag,
+        lag_episodes: lagData.lagEpisodes,
+        lag_type: lagData.lagType,
+      }
+    })
 
     // Get total count
     const countQuery = `

@@ -12,11 +12,22 @@ interface Call {
   status: string
   total_turns: number
   language: string
+  max_lag?: number
+  lag_episodes?: number
+  lag_type?: string | null
 }
 
 interface CallsTableProps {
   calls: Call[]
   loading?: boolean
+}
+
+// Get lag indicator based on max lag value
+function getLagIndicator(maxLag: number): { color: string; emoji: string } {
+  if (maxLag === 0) return { color: 'text-gray-400', emoji: '–' }
+  if (maxLag < 4) return { color: 'text-green-600', emoji: '🟢' }
+  if (maxLag < 6) return { color: 'text-yellow-600', emoji: '🟡' }
+  return { color: 'text-red-600', emoji: '🔴' }
 }
 
 export function CallsTable({ calls, loading }: CallsTableProps) {
@@ -62,6 +73,9 @@ export function CallsTable({ calls, loading }: CallsTableProps) {
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Lang
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Lag
               </th>
               <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
@@ -109,6 +123,27 @@ export function CallsTable({ calls, loading }: CallsTableProps) {
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 uppercase">
                   {call.language}
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap">
+                  {call.max_lag !== undefined && call.max_lag > 0 ? (
+                    <Link
+                      href={`/call/${call.call_id}?highlight=lag`}
+                      className="inline-flex items-center gap-1.5 hover:opacity-80 transition-opacity"
+                      title={`Max lag: ${call.max_lag.toFixed(1)}s (${call.lag_type})`}
+                    >
+                      <span>{getLagIndicator(call.max_lag).emoji}</span>
+                      <span className={`text-sm font-medium ${getLagIndicator(call.max_lag).color}`}>
+                        {call.max_lag.toFixed(1)}s
+                      </span>
+                      {call.lag_episodes && call.lag_episodes > 0 && (
+                        <span className="text-xs text-gray-500">
+                          ({call.lag_episodes})
+                        </span>
+                      )}
+                    </Link>
+                  ) : (
+                    <span className="text-gray-400 text-sm">–</span>
+                  )}
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap text-right">
                   <Link

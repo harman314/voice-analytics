@@ -18,6 +18,9 @@ interface Call {
   status: string
   total_turns: number
   language: string
+  max_lag?: number
+  lag_episodes?: number
+  lag_type?: string | null
 }
 
 interface Summary {
