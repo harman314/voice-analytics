@@ -1,7 +1,7 @@
 'use client'
 
 import { parseTranscriptSafe, classifyLag } from '@/lib/utils'
-import { LAG_THRESHOLDS } from '@/lib/clickhouse'
+import { LAG_THRESHOLDS } from '@/lib/constants'
 
 interface TranscriptViewerProps {
   transcriptJson: string
