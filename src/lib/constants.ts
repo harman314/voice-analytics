@@ -4,6 +4,15 @@ export const LAG_THRESHOLDS = {
   llm_ttft: 3.0,         // LLM time-to-first-token > 3s
   tts_ttfb: 0.5,         // TTS time-to-first-byte > 0.5s
   transcription_delay: 1.5, // Transcription delay > 1.5s
+  end_of_turn: 2.0,      // End of turn detection > 2s
+}
+
+// Component latency breakdown labels and colors
+export const LATENCY_COMPONENTS = {
+  stt: { label: 'STT', color: 'bg-blue-500', description: 'Speech-to-Text transcription' },
+  llm: { label: 'LLM', color: 'bg-purple-500', description: 'LLM processing time to first token' },
+  tts: { label: 'TTS', color: 'bg-green-500', description: 'Text-to-Speech generation' },
+  other: { label: 'Other', color: 'bg-gray-400', description: 'Network, VAD, pipeline overhead' },
 }
 
 // Default internal users - prepopulated from analytics project

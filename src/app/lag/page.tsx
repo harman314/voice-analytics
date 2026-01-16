@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { format, subDays } from 'date-fns'
 import Link from 'next/link'
 import { StatsCard } from '@/components/StatsCard'
+import { LatencyBreakdown } from '@/components/LatencyBreakdown'
 import { DEFAULT_INTERNAL_USERS, LAG_THRESHOLDS } from '@/lib/constants'
 import { truncateUserId } from '@/lib/utils'
 
@@ -25,6 +26,15 @@ interface DailyStat {
   dropoff_count: number
 }
 
+interface ComponentBreakdown {
+  stt: { avg: number; p50: number; p95: number; count: number }
+  llm: { avg: number; p50: number; p95: number; count: number; pctOfE2E: number }
+  tts: { avg: number; p50: number; p95: number; count: number; pctOfE2E: number }
+  e2e: { avg: number; p50: number; p95: number; count: number }
+  endOfTurn: { avg: number; p50: number; p95: number; count: number }
+  other: { avg: number; pctOfE2E: number }
+}
+
 export default function LagAnalysisPage() {
   const [dateRange, setDateRange] = useState({
     startDate: format(subDays(new Date(), 7), 'yyyy-MM-dd'),
@@ -33,6 +43,8 @@ export default function LagAnalysisPage() {
   const [excludeInternalUsers, setExcludeInternalUsers] = useState(true)
   const [lagEpisodes, setLagEpisodes] = useState<LagEpisode[]>([])
   const [dailyStats, setDailyStats] = useState<DailyStat[]>([])
+  const [componentBreakdown, setComponentBreakdown] = useState<ComponentBreakdown | null>(null)
+  const [languageBreakdown, setLanguageBreakdown] = useState<Record<string, ComponentBreakdown> | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -49,6 +61,8 @@ export default function LagAnalysisPage() {
       const data = await res.json()
       setLagEpisodes(data.lagEpisodes || [])
       setDailyStats(data.dailyStats || [])
+      setComponentBreakdown(data.componentBreakdown || null)
+      setLanguageBreakdown(data.languageBreakdown || null)
     } catch (error) {
       console.error('Error fetching lag data:', error)
     } finally {
@@ -140,7 +154,7 @@ export default function LagAnalysisPage() {
       {/* Thresholds Info */}
       <div className="bg-amber-50 rounded-lg border border-amber-200 p-4">
         <h3 className="text-sm font-semibold text-amber-800 mb-2">📊 Current Thresholds</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
           <div>
             <span className="text-amber-600">E2E Latency:</span>{' '}
             <span className="font-medium">{LAG_THRESHOLDS.e2e_latency}s</span>
@@ -157,8 +171,20 @@ export default function LagAnalysisPage() {
             <span className="text-amber-600">STT Delay:</span>{' '}
             <span className="font-medium">{LAG_THRESHOLDS.transcription_delay}s</span>
           </div>
+          <div>
+            <span className="text-amber-600">End of Turn:</span>{' '}
+            <span className="font-medium">{LAG_THRESHOLDS.end_of_turn}s</span>
+          </div>
         </div>
       </div>
+
+      {/* Component Latency Breakdown */}
+      {!loading && (
+        <LatencyBreakdown
+          componentBreakdown={componentBreakdown}
+          languageBreakdown={languageBreakdown}
+        />
+      )}
 
       {/* Daily Stats Table */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
