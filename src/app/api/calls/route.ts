@@ -53,14 +53,19 @@ function analyzeLag(transcriptJson: string): { maxLag: number; lagEpisodes: numb
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
-  const date = searchParams.get('date') || new Date().toISOString().split('T')[0]
+  // Support both single date (legacy) and date range
+  const startDate = searchParams.get('startDate') || searchParams.get('date') || new Date().toISOString().split('T')[0]
+  const endDate = searchParams.get('endDate') || startDate
   const callType = searchParams.get('callType') || 'all' // 'all', 'welcome', 'daily'
   const excludeUsers = searchParams.get('excludeUsers')?.split(',').filter(Boolean) || []
   const limit = parseInt(searchParams.get('limit') || '100')
   const offset = parseInt(searchParams.get('offset') || '0')
 
   try {
-    let whereClause = `toDate(parseDateTimeBestEffort(initiated_at)) = '${date}'`
+    let whereClause = `
+      toDate(parseDateTimeBestEffort(initiated_at)) >= '${startDate}'
+      AND toDate(parseDateTimeBestEffort(initiated_at)) <= '${endDate}'
+    `
 
     if (callType === 'welcome') {
       whereClause += ` AND is_new_user = true`
@@ -132,7 +137,7 @@ export async function GET(request: NextRequest) {
     const countData = await countResult.json() as { total: string }[]
     const total = parseInt(countData[0]?.total || '0')
 
-    return NextResponse.json({ calls, total, date })
+    return NextResponse.json({ calls, total, startDate, endDate })
   } catch (error) {
     console.error('Error fetching calls:', error)
     return NextResponse.json({ error: 'Failed to fetch calls' }, { status: 500 })

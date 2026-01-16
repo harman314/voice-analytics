@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { format, subDays } from 'date-fns'
 import { CallsTable } from '@/components/CallsTable'
-import { DatePicker } from '@/components/DatePicker'
 import { FilterBar } from '@/components/FilterBar'
 import { DEFAULT_INTERNAL_USERS } from '@/lib/constants'
 
@@ -19,7 +18,10 @@ interface Call {
 }
 
 export default function CallsPage() {
-  const [selectedDate, setSelectedDate] = useState(new Date())
+  const [dateRange, setDateRange] = useState({
+    startDate: format(subDays(new Date(), 7), 'yyyy-MM-dd'),
+    endDate: format(new Date(), 'yyyy-MM-dd'),
+  })
   const [callType, setCallType] = useState<'all' | 'welcome' | 'daily'>('all')
   const [excludeInternalUsers, setExcludeInternalUsers] = useState(true)
   const [calls, setCalls] = useState<Call[]>([])
@@ -30,16 +32,15 @@ export default function CallsPage() {
 
   useEffect(() => {
     fetchCalls()
-  }, [selectedDate, callType, excludeInternalUsers, page])
+  }, [dateRange, callType, excludeInternalUsers, page])
 
   const fetchCalls = async () => {
     setLoading(true)
     try {
-      const dateStr = format(selectedDate, 'yyyy-MM-dd')
       const excludeUsers = excludeInternalUsers ? DEFAULT_INTERNAL_USERS.join(',') : ''
 
       const res = await fetch(
-        `/api/calls?date=${dateStr}&callType=${callType}&excludeUsers=${excludeUsers}&limit=${pageSize}&offset=${page * pageSize}`
+        `/api/calls?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}&callType=${callType}&excludeUsers=${excludeUsers}&limit=${pageSize}&offset=${page * pageSize}`
       )
       const data = await res.json()
       setCalls(data.calls || [])
@@ -63,7 +64,22 @@ export default function CallsPage() {
             Browse and search through all voice calls
           </p>
         </div>
-        <DatePicker selectedDate={selectedDate} onChange={(d) => { setSelectedDate(d); setPage(0); }} />
+        <div className="flex items-center space-x-2">
+          <input
+            type="date"
+            value={dateRange.startDate}
+            onChange={(e) => { setDateRange({ ...dateRange, startDate: e.target.value }); setPage(0); }}
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
+          />
+          <span className="text-gray-400">to</span>
+          <input
+            type="date"
+            value={dateRange.endDate}
+            onChange={(e) => { setDateRange({ ...dateRange, endDate: e.target.value }); setPage(0); }}
+            max={format(new Date(), 'yyyy-MM-dd')}
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
+          />
+        </div>
       </div>
 
       {/* Filters */}
@@ -79,7 +95,10 @@ export default function CallsPage() {
       {/* Results header */}
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-gray-900">
-          {format(selectedDate, 'MMMM d, yyyy')}
+          {dateRange.startDate === dateRange.endDate
+            ? format(new Date(dateRange.startDate + 'T00:00:00'), 'MMMM d, yyyy')
+            : `${format(new Date(dateRange.startDate + 'T00:00:00'), 'MMM d')} - ${format(new Date(dateRange.endDate + 'T00:00:00'), 'MMM d, yyyy')}`
+          }
         </h2>
         <span className="text-sm text-gray-500">
           {total} calls total
