@@ -24,9 +24,9 @@ interface DailyStat {
   avg_e2e_latency: number
   max_e2e_latency: number
   dropoff_count: number
-  max_stt: number
-  max_llm: number
-  max_tts: number
+  avg_stt: number
+  avg_llm: number
+  avg_tts: number
 }
 
 interface ComponentBreakdown {
@@ -206,9 +206,9 @@ export default function LagAnalysisPage() {
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">High Latency</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Avg E2E</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-blue-600 uppercase">Max STT</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-purple-600 uppercase">Max LLM</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-green-600 uppercase">Max TTS</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-blue-600 uppercase">Avg STT</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-purple-600 uppercase">Avg LLM</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-green-600 uppercase">Avg TTS</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Max E2E</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Dropoffs</th>
                 </tr>
@@ -230,18 +230,18 @@ export default function LagAnalysisPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`text-sm ${stat.max_stt > LAG_THRESHOLDS.transcription_delay ? 'text-blue-700 font-medium' : 'text-blue-600'}`}>
-                        {stat.max_stt > 0 ? `${(stat.max_stt * 1000).toFixed(0)}ms` : '-'}
+                      <span className={`text-sm ${stat.avg_stt > LAG_THRESHOLDS.transcription_delay ? 'text-blue-700 font-medium' : 'text-blue-600'}`}>
+                        {stat.avg_stt > 0 ? `${(stat.avg_stt * 1000).toFixed(0)}ms` : '-'}
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`text-sm ${stat.max_llm > LAG_THRESHOLDS.llm_ttft ? 'text-purple-700 font-medium' : 'text-purple-600'}`}>
-                        {stat.max_llm > 0 ? `${(stat.max_llm * 1000).toFixed(0)}ms` : '-'}
+                      <span className={`text-sm ${stat.avg_llm > LAG_THRESHOLDS.llm_ttft ? 'text-purple-700 font-medium' : 'text-purple-600'}`}>
+                        {stat.avg_llm > 0 ? `${(stat.avg_llm * 1000).toFixed(0)}ms` : '-'}
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`text-sm ${stat.max_tts > LAG_THRESHOLDS.tts_ttfb ? 'text-green-700 font-medium' : 'text-green-600'}`}>
-                        {stat.max_tts > 0 ? `${(stat.max_tts * 1000).toFixed(0)}ms` : '-'}
+                      <span className={`text-sm ${stat.avg_tts > LAG_THRESHOLDS.tts_ttfb ? 'text-green-700 font-medium' : 'text-green-600'}`}>
+                        {stat.avg_tts > 0 ? `${(stat.avg_tts * 1000).toFixed(0)}ms` : '-'}
                       </span>
                     </td>
                     <td className="px-4 py-3">

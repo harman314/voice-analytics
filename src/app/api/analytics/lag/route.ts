@@ -69,10 +69,13 @@ export async function GET(request: NextRequest) {
       avg_e2e_latency: number
       max_e2e_latency: number
       dropoff_count: number
-      // Component latency max values
-      max_stt: number
-      max_llm: number
-      max_tts: number
+      // Component latency aggregates
+      stt_sum: number
+      stt_count: number
+      llm_sum: number
+      llm_count: number
+      tts_sum: number
+      tts_count: number
     }> = {}
 
     // Component-level latency tracking
@@ -101,9 +104,12 @@ export async function GET(request: NextRequest) {
             avg_e2e_latency: 0,
             max_e2e_latency: 0,
             dropoff_count: 0,
-            max_stt: 0,
-            max_llm: 0,
-            max_tts: 0,
+            stt_sum: 0,
+            stt_count: 0,
+            llm_sum: 0,
+            llm_count: 0,
+            tts_sum: 0,
+            tts_count: 0,
           }
         }
 
@@ -134,10 +140,9 @@ export async function GET(request: NextRequest) {
               languageStats[language].stt.sum += metrics.transcription_delay
               languageStats[language].stt.count++
               languageStats[language].stt.values.push(metrics.transcription_delay)
-              // Daily stats - track max
-              if (metrics.transcription_delay > dailyLagStats[callDate].max_stt) {
-                dailyLagStats[callDate].max_stt = metrics.transcription_delay
-              }
+              // Daily stats - accumulate for avg
+              dailyLagStats[callDate].stt_sum += metrics.transcription_delay
+              dailyLagStats[callDate].stt_count++
 
               // Check STT threshold
               if (metrics.transcription_delay > LAG_THRESHOLDS.transcription_delay) {
@@ -184,10 +189,9 @@ export async function GET(request: NextRequest) {
               languageStats[language].llm.sum += metrics.llm_node_ttft
               languageStats[language].llm.count++
               languageStats[language].llm.values.push(metrics.llm_node_ttft)
-              // Daily stats - track max
-              if (metrics.llm_node_ttft > dailyLagStats[callDate].max_llm) {
-                dailyLagStats[callDate].max_llm = metrics.llm_node_ttft
-              }
+              // Daily stats - accumulate for avg
+              dailyLagStats[callDate].llm_sum += metrics.llm_node_ttft
+              dailyLagStats[callDate].llm_count++
 
               // Check LLM TTFT threshold
               if (metrics.llm_node_ttft > LAG_THRESHOLDS.llm_ttft) {
@@ -211,10 +215,9 @@ export async function GET(request: NextRequest) {
               languageStats[language].tts.sum += metrics.tts_node_ttfb
               languageStats[language].tts.count++
               languageStats[language].tts.values.push(metrics.tts_node_ttfb)
-              // Daily stats - track max
-              if (metrics.tts_node_ttfb > dailyLagStats[callDate].max_tts) {
-                dailyLagStats[callDate].max_tts = metrics.tts_node_ttfb
-              }
+              // Daily stats - accumulate for avg
+              dailyLagStats[callDate].tts_sum += metrics.tts_node_ttfb
+              dailyLagStats[callDate].tts_count++
 
               // Check TTS TTFB threshold
               if (metrics.tts_node_ttfb > LAG_THRESHOLDS.tts_ttfb) {
@@ -284,10 +287,10 @@ export async function GET(request: NextRequest) {
         avg_e2e_latency: stat.avg_e2e_latency,
         max_e2e_latency: stat.max_e2e_latency,
         dropoff_count: stat.dropoff_count,
-        // Max component latencies
-        max_stt: stat.max_stt,
-        max_llm: stat.max_llm,
-        max_tts: stat.max_tts,
+        // Avg component latencies
+        avg_stt: stat.stt_count > 0 ? stat.stt_sum / stat.stt_count : 0,
+        avg_llm: stat.llm_count > 0 ? stat.llm_sum / stat.llm_count : 0,
+        avg_tts: stat.tts_count > 0 ? stat.tts_sum / stat.tts_count : 0,
       }))
       .sort((a, b) => b.date.localeCompare(a.date))
 
