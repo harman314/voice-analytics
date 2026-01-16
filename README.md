@@ -1,6 +1,6 @@
 # Voice Analytics Module
 
-A standalone Next.js dashboard for analyzing TapHealth AI voice coaching calls.
+A standalone Next.js dashboard for analyzing TapHealth AI voice coaching calls..
 
 ## Features
 
