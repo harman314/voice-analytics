@@ -119,15 +119,26 @@ export default function CallDetailPage() {
             <p className="text-gray-500 text-sm font-mono">{truncateUserId(call.call_id)}</p>
           </div>
         </div>
-        <span
-          className={`px-3 py-1 rounded-full text-sm font-medium ${
-            call.is_new_user
-              ? 'bg-purple-100 text-purple-800'
-              : 'bg-blue-100 text-blue-800'
-          }`}
-        >
-          {call.is_new_user ? '👋 Welcome Call' : '📅 Daily Call'}
-        </span>
+        <div className="flex items-center gap-2">
+          <span
+            className={`px-3 py-1 rounded-full text-sm font-medium ${
+              call.is_new_user
+                ? 'bg-purple-100 text-purple-800'
+                : 'bg-blue-100 text-blue-800'
+            }`}
+          >
+            {call.is_new_user ? '👋 Welcome Call' : '📅 Daily Call'}
+          </span>
+          <span
+            className={`px-3 py-1 rounded-full text-sm font-medium ${
+              call.is_user_initiated
+                ? 'bg-green-100 text-green-800'
+                : 'bg-orange-100 text-orange-800'
+            }`}
+          >
+            {call.is_user_initiated ? '👤 User Initiated' : '🤖 System Initiated'}
+          </span>
+        </div>
       </div>
 
       {/* Info Cards */}

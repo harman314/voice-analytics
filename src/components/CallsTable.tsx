@@ -7,6 +7,7 @@ interface Call {
   call_id: string
   user_id: string
   is_new_user: boolean
+  is_user_initiated: boolean
   initiated_at: string
   duration_seconds: number | null
   status: string
@@ -63,6 +64,9 @@ export function CallsTable({ calls, loading }: CallsTableProps) {
                 Type
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Source
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Duration
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -100,6 +104,17 @@ export function CallsTable({ calls, loading }: CallsTableProps) {
                     }`}
                   >
                     {call.is_new_user ? '👋 Welcome' : '📅 Daily'}
+                  </span>
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap">
+                  <span
+                    className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                      call.is_user_initiated
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-orange-100 text-orange-800'
+                    }`}
+                  >
+                    {call.is_user_initiated ? '👤 User' : '🤖 System'}
                   </span>
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">

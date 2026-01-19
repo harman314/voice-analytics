@@ -16,6 +16,7 @@ interface LagEpisode {
   lag_type: string
   lag_value: number
   threshold: number
+  is_user_initiated: boolean
 }
 
 interface DailyStat {
@@ -278,6 +279,7 @@ export default function LagAnalysisPage() {
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Timestamp</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Source</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Value</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Threshold</th>
@@ -292,6 +294,17 @@ export default function LagAnalysisPage() {
                     </td>
                     <td className="px-4 py-3 text-sm font-mono text-gray-600">
                       {truncateUserId(episode.user_id)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                          episode.is_user_initiated
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-orange-100 text-orange-800'
+                        }`}
+                      >
+                        {episode.is_user_initiated ? '👤 User' : '🤖 System'}
+                      </span>
                     </td>
                     <td className="px-4 py-3">
                       <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs">

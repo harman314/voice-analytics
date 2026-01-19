@@ -47,7 +47,8 @@ export async function GET(request: NextRequest) {
         duration_seconds,
         transcript,
         status,
-        language
+        language,
+        is_user_initiated
       FROM analytics.voice_call_analytics
       WHERE ${whereClause}
         AND length(transcript) > 10
@@ -154,6 +155,7 @@ export async function GET(request: NextRequest) {
                   lag_type: 'stt',
                   lag_value: metrics.transcription_delay,
                   threshold: LAG_THRESHOLDS.transcription_delay,
+                  is_user_initiated: call.is_user_initiated,
                 })
               }
             }
@@ -177,6 +179,7 @@ export async function GET(request: NextRequest) {
                   lag_type: 'end_of_turn',
                   lag_value: metrics.end_of_turn_delay,
                   threshold: LAG_THRESHOLDS.end_of_turn,
+                  is_user_initiated: call.is_user_initiated,
                 })
               }
             }
@@ -203,6 +206,7 @@ export async function GET(request: NextRequest) {
                   lag_type: 'llm_ttft',
                   lag_value: metrics.llm_node_ttft,
                   threshold: LAG_THRESHOLDS.llm_ttft,
+                  is_user_initiated: call.is_user_initiated,
                 })
               }
             }
@@ -229,6 +233,7 @@ export async function GET(request: NextRequest) {
                   lag_type: 'tts_ttfb',
                   lag_value: metrics.tts_node_ttfb,
                   threshold: LAG_THRESHOLDS.tts_ttfb,
+                  is_user_initiated: call.is_user_initiated,
                 })
               }
             }
@@ -258,6 +263,7 @@ export async function GET(request: NextRequest) {
                   lag_type: 'e2e_latency',
                   lag_value: metrics.e2e_latency,
                   threshold: LAG_THRESHOLDS.e2e_latency,
+                  is_user_initiated: call.is_user_initiated,
                 })
                 dailyLagStats[callDate].high_latency_count++
               }

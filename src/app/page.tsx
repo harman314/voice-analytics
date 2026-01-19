@@ -13,6 +13,7 @@ interface Call {
   call_id: string
   user_id: string
   is_new_user: boolean
+  is_user_initiated: boolean
   initiated_at: string
   duration_seconds: number | null
   status: string
