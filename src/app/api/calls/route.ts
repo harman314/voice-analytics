@@ -97,6 +97,7 @@ export async function GET(request: NextRequest) {
         timezone,
         scheduled_time,
         transcript,
+        actions,
         _timestamp
       FROM analytics.voice_call_analytics
       WHERE ${whereClause}
@@ -111,16 +112,29 @@ export async function GET(request: NextRequest) {
 
     const rawCalls = await result.json() as any[]
 
-    // Process each call to add lag analysis
+    // Process each call to add lag analysis and meals count
     const calls = rawCalls.map(call => {
       const lagData = analyzeLag(call.transcript)
-      // Don't include full transcript in response (too large)
-      const { transcript, ...callWithoutTranscript } = call
+
+      // Count meals logged from actions
+      let mealsLogged = 0
+      try {
+        const actions = JSON.parse(call.actions || '{}')
+        if (actions.mealsLogged && Array.isArray(actions.mealsLogged)) {
+          mealsLogged = actions.mealsLogged.length
+        }
+      } catch {
+        // Ignore parse errors
+      }
+
+      // Don't include full transcript or actions in response (too large)
+      const { transcript, actions: _, ...callWithoutLargeFields } = call
       return {
-        ...callWithoutTranscript,
+        ...callWithoutLargeFields,
         max_lag: lagData.maxLag,
         lag_episodes: lagData.lagEpisodes,
         lag_type: lagData.lagType,
+        meals_logged: mealsLogged,
       }
     })
 

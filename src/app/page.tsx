@@ -22,6 +22,7 @@ interface Call {
   max_lag?: number
   lag_episodes?: number
   lag_type?: string | null
+  meals_logged?: number
 }
 
 interface Summary {

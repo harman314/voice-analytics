@@ -16,6 +16,7 @@ interface Call {
   max_lag?: number
   lag_episodes?: number
   lag_type?: string | null
+  meals_logged?: number
 }
 
 interface CallsTableProps {
@@ -79,6 +80,9 @@ export function CallsTable({ calls, loading }: CallsTableProps) {
                 Lang
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Meals
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Lag
               </th>
               <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -138,6 +142,15 @@ export function CallsTable({ calls, loading }: CallsTableProps) {
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 uppercase">
                   {call.language}
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap">
+                  {call.meals_logged !== undefined && call.meals_logged > 0 ? (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800">
+                      🍽️ {call.meals_logged}
+                    </span>
+                  ) : (
+                    <span className="text-gray-400 text-sm">–</span>
+                  )}
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap">
                   {call.max_lag !== undefined && call.max_lag > 0 ? (
